@@ -10,8 +10,6 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" alt="License" /></a>
-  <a href="https://github.com/MemeCalculate/moyin-creator/releases"><img src="https://img.shields.io/github/v/release/MemeCalculate/moyin-creator" alt="Release" /></a>
-  <a href="https://github.com/MemeCalculate/moyin-creator/stargazers"><img src="https://img.shields.io/github/stars/MemeCalculate/moyin-creator" alt="Stars" /></a>
 </p>
 
 <p align="center">
@@ -30,11 +28,13 @@
 
 ## Overview
 
-**Moyin Creator** is a production-grade tool for AI film & anime creators. Five interconnected modules cover the entire pipeline from script to final video:
+This repository is a **learning-oriented modified fork** of the original project.
+
+It still focuses on the AI film and animation workflow, with five connected modules covering the pipeline from script to final video:
 
 > **📝 Script → 🎭 Characters → 🌄 Scenes → 🎬 Director → ⭐ S-Class (Seedance 2.0)**
 
-Each stage's output automatically flows into the next — no manual glue required. Supports multiple mainstream AI models, ideal for batch production of short dramas, anime series, trailers, and more.
+Each stage feeds into the next and is useful for studying AI-assisted video workflows, Electron desktop architecture, and multi-stage creative pipelines.
 
 ## Features
 
@@ -97,7 +97,7 @@ Each stage's output automatically flows into the next — no manual glue require
 
 ```bash
 # Clone the repository
-git clone https://github.com/MemeCalculate/moyin-creator.git
+git clone https://github.com/lonycn/moyin-creator.git
 cd moyin-creator
 
 # Install dependencies
@@ -154,25 +154,12 @@ moyin-creator/
 
 ## License
 
-This project uses a **dual licensing** model:
+This project is released under **AGPL-3.0**.
 
 ### Open Source — AGPL-3.0
 
 This project is open-sourced under the [GNU AGPL-3.0](LICENSE) license. You are free to use, modify, and distribute it, but any modified code must be open-sourced under the same license.
 
-### Commercial Use
-
-If you need closed-source usage or integration into commercial products, please contact us for a [Commercial License](COMMERCIAL_LICENSE.md).
-
 ## Contributing
 
 Contributions are welcome! Please read the [Contributing Guide](CONTRIBUTING.md) for details.
-
-## Contact
-
-- 📧 Email: [memecalculate@gmail.com](mailto:memecalculate@gmail.com)
-- 🐙 GitHub: [https://github.com/MemeCalculate/moyin-creator](https://github.com/MemeCalculate/moyin-creator)
-
----
-
-<p align="center">Made with ❤️ by <a href="https://github.com/MemeCalculate">MemeCalculate</a></p>

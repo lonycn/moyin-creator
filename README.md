@@ -9,8 +9,6 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" alt="License" /></a>
-  <a href="https://github.com/MemeCalculate/moyin-creator/releases"><img src="https://img.shields.io/github/v/release/MemeCalculate/moyin-creator" alt="Release" /></a>
-  <a href="https://github.com/MemeCalculate/moyin-creator/stargazers"><img src="https://img.shields.io/github/stars/MemeCalculate/moyin-creator" alt="Stars" /></a>
 </p>
 
 <p align="center">
@@ -38,14 +36,13 @@
 
 ## 简介
 
-**魔因漫创** 是一款面向 AI 影视创作者的生产级工具。五大板块环环相扣，覆盖从剧本到成片的完整创作链路：
+本仓库是一个基于原项目继续学习、整理和修改的 **学习修改版**。
+
+项目仍然围绕 AI 影视创作流程展开，五大板块覆盖从剧本到成片的完整链路：
 
 > **📝 剧本 → 🎭 角色 → 🌄 场景 → 🎬 导演 → ⭐ S级（Seedance 2.0）**
 
-每一步的产出自动流入下一步，无需手动搅合。支持多种主流 AI 大模型，适合短剧、动漫番剧、预告片等场景的批量化生产。
-
-
-基础设置教程：https://www.bilibili.com/video/BV1FsZDBHExJ/?vd_source=802462c0708e775ce81f95b2e486f175
+每一步的产出自动流入下一步，适合用于学习 AI 视频工作流、桌面端工程结构与多阶段创作管线。
 
 
 ## 功能特性
@@ -93,11 +90,6 @@
 - 支持多个 AI 图像/视频生成服务商
 - API Key 轮询负载均衡
 - 任务队列管理，自动重试
-### 下载
-打包程序版本0.1.7，对应开源源码
-链接: https://pan.baidu.com/s/1ImH6tOIiuFxIDXC0fC-6Lg 提取码: 8888 
-
-
 ## 快速开始
 
 ### 环境要求
@@ -109,7 +101,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/MemeCalculate/moyin-creator.git
+git clone https://github.com/lonycn/moyin-creator.git
 cd moyin-creator
 
 # 安装依赖
@@ -166,37 +158,15 @@ moyin-creator/
 
 ## 许可证
 
-本项目采用 **双重许可** 模式：
+本项目以 **AGPL-3.0** 许可证开源发布。
 
 ### 开源使用 — AGPL-3.0
 
 本项目以 [GNU AGPL-3.0](LICENSE) 许可证开源。你可以自由使用、修改和分发，但修改后的代码必须以相同许可证开源。
 
-### 商业使用
-
-如果你需要闭源使用或集成到商业产品中，请联系我们获取 [商业许可](COMMERCIAL_LICENSE.md)。
-
 ## 贡献
 
 欢迎贡献！请阅读 [贡献指南](CONTRIBUTING.md) 了解详情。
-
-## 联系
-
-- 📧 Email: [memecalculate@gmail.com](mailto:memecalculate@gmail.com)
-- 🐙 GitHub: [https://github.com/MemeCalculate/moyin-creator](https://github.com/MemeCalculate/moyin-creator)
-
-### 联系我们
-
-
-
-<img src="https://github.com/user-attachments/assets/351713eb-79c7-4616-8416-397a9398e6e4" width="200" alt="交流群" />
-
-<img src="docs/images/wechat-contact.png" width="200" alt="微信联系" />
-
-
----
-
-<p align="center">Made with ❤️ by <a href="https://github.com/MemeCalculate">MemeCalculate</a></p>
 
 
 
