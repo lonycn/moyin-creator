@@ -1757,7 +1757,7 @@ ${gridItemsZh}
         const createdVariantIds: string[] = [];
 
         // 补全分镜 shotIds — 使用 effectiveViewpoints（含 fallback）
-        let viewpointsToSave = effectiveViewpoints.map((vp) => ({
+        const viewpointsToSave = effectiveViewpoints.map((vp) => ({
           ...vp,
           shotIds: [...(vp.shotIds || [])],
         }));

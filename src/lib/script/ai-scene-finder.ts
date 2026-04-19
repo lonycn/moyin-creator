@@ -57,7 +57,7 @@ function parseSceneQuery(query: string): { name: string | null; episodeNumber: n
   }
   
   // 移除集数相关文本
-  let cleanQuery = query
+  const cleanQuery = query
     .replace(/第\s*\d+\s*[集话]/g, '')
     .replace(/EP\.?\s*\d+/gi, '')
     .replace(/episode\s*\d+/gi, '')

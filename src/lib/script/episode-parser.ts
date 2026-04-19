@@ -326,7 +326,7 @@ export function parseEpisodes(text: string): EpisodeRawScript[] {
     const match = matches[i];
     const episodeIndex = chineseToNumber(match[1]);
     // 清理标题：移除前后空格和 ** 符号
-    let rawTitle = match[2]?.trim().replace(/^\*+|\*+$/g, '').trim() || '';
+    const rawTitle = match[2]?.trim().replace(/^\*+|\*+$/g, '').trim() || '';
     // 确保标题包含集号
     const episodeTitle = rawTitle 
       ? `第${episodeIndex}集：${rawTitle}` 
@@ -743,7 +743,7 @@ function parseCompactBioFormat(bios: string, matches: RegExpMatchArray[]): Scrip
   
   for (let i = 0; i < matches.length; i++) {
     const match = matches[i];
-    let rawName = match[1];
+    const rawName = match[1];
     const age = match[2];
     
     // 剥离段落关键词提取真实角色名
@@ -879,7 +879,7 @@ function cleanCharacterName(rawName: string): string {
  */
 function splitMultipleCharacters(rawName: string): string[] {
   // 先清理 markdown
-  let name = rawName.replace(/\*+/g, '').trim();
+  const name = rawName.replace(/\*+/g, '').trim();
   // 按常见分隔符拆分
   const parts = name.split(/[、,，\s]+/).filter(p => p.length > 0);
   return parts;
@@ -1032,7 +1032,7 @@ export function convertToScriptData(
       const timeOfDay = headerParts[1] || '日';
       const hasInterior = headerParts[2] && /^(内|外|内\/外)$/.test(headerParts[2]);
       const locationStartIndex = hasInterior ? 3 : 2;
-      let rawLocation = headerParts.slice(locationStartIndex).join(' ') || headerParts[headerParts.length - 1] || '未知';
+      const rawLocation = headerParts.slice(locationStartIndex).join(' ') || headerParts[headerParts.length - 1] || '未知';
       
       // 清理 location，移除人物信息等无关内容
       const location = cleanLocationString(rawLocation);

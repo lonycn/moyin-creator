@@ -1140,7 +1140,7 @@ export function SplitScenes({ onBack, onGenerateVideos }: SplitScenesProps) {
       });
 
       let gridImageUrl = apiResult.imageUrl;
-      let taskId = apiResult.taskId;
+      const taskId = apiResult.taskId;
 
       // Poll if async
       if (!gridImageUrl && taskId) {
@@ -2079,7 +2079,7 @@ export function SplitScenes({ onBack, onGenerateVideos }: SplitScenesProps) {
       }
 
       // Async task - poll for completion
-      let taskId: string | undefined = apiResult.taskId;
+      const taskId: string | undefined = apiResult.taskId;
       console.log('[SplitScenes] Async task:', taskId);
 
       // Poll for completion if we have a task ID
@@ -2202,7 +2202,7 @@ export function SplitScenes({ onBack, onGenerateVideos }: SplitScenesProps) {
   const allocateAngles = (count: number, preselected: (string | undefined)[]): Angle[] => {
     const result: Angle[] = new Array(count);
     // Desired quotas
-    let quotas: Record<Angle, number> = {
+    const quotas: Record<Angle, number> = {
       'Back View': 2,
       'Over-the-Shoulder (OTS)': 3,
       'POV': 2,
@@ -2699,7 +2699,7 @@ export function SplitScenes({ onBack, onGenerateVideos }: SplitScenesProps) {
       });
       
       let gridImageUrl = apiResult.imageUrl;
-      let taskId = apiResult.taskId;
+      const taskId = apiResult.taskId;
       console.log('[MergedGen] API result: gridImageUrl=', gridImageUrl?.substring(0, 50), 'taskId=', taskId);
       
       // 如果是异步任务，轮询
@@ -3208,7 +3208,7 @@ export function SplitScenes({ onBack, onGenerateVideos }: SplitScenesProps) {
       }
 
       // Async task - poll for completion
-      let taskId: string | undefined = apiResult.taskId;
+      const taskId: string | undefined = apiResult.taskId;
       
       if (taskId) {
         const pollInterval = 2000;

@@ -1195,7 +1195,7 @@ ${characterBios.slice(0, 1000)}
         return { system, user };
       },
       parseResult: (raw) => {
-        let cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        const cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         const parsed = JSON.parse(cleaned);
         const result = new Map<string, string>();
         if (parsed.titles) {
@@ -2359,7 +2359,7 @@ ${characterBios.slice(0, 800)}
         return { system, user };
       },
       parseResult: (raw) => {
-        let cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        const cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         const parsed = JSON.parse(cleaned);
         const result = new Map<string, SynopsisResult>();
         if (parsed.synopses) {

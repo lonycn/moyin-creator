@@ -441,7 +441,7 @@ async function submitViaChatCompletions(
     // Fallback: accumulate SSE delta chunks into a single message
     const lines = responseText.split('\n').filter(l => l.startsWith('data: '));
     let accumulatedText = '';
-    let accumulatedParts: any[] = [];
+    const accumulatedParts: any[] = [];
     let lastChunk: any = null;
 
     for (const line of lines) {

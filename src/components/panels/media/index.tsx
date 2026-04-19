@@ -522,7 +522,7 @@ export function MediaView() {
 
   const filteredMediaItems = useMemo(() => {
     // Filter by current folder
-    let filtered = visibleMediaFiles.filter((item) => 
+    const filtered = visibleMediaFiles.filter((item) => 
       !item.ephemeral && (item.folderId || null) === currentFolderId
     );
 
