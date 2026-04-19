@@ -111,7 +111,7 @@ export const PROMPTS: PromptDef[] = [
 ];
 
 // 让外面也能拿到 zod schema 校验入参（虽然 MCP prompts 协议不严格要求）
-export const PROMPT_ARG_SCHEMAS: Record<string, z.ZodObject<any>> = {
+export const PROMPT_ARG_SCHEMAS: Record<string, z.ZodObject<z.ZodRawShape>> = {
   create_video_from_script: z.object({
     title: z.string(),
     script: z.string(),

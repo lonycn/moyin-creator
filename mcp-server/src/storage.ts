@@ -13,6 +13,12 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+function getErrorCode(err: unknown): string | undefined {
+  return typeof err === 'object' && err !== null && 'code' in err && typeof err.code === 'string'
+    ? err.code
+    : undefined;
+}
+
 export class ProjectStore {
   constructor(private readonly dataDir: string) {}
 
@@ -31,8 +37,8 @@ export class ProjectStore {
     try {
       const raw = await fs.readFile(file, 'utf-8');
       return JSON.parse(raw) as T;
-    } catch (err: any) {
-      if (err.code === 'ENOENT') return null;
+    } catch (err: unknown) {
+      if (getErrorCode(err) === 'ENOENT') return null;
       throw err;
     }
   }
@@ -54,8 +60,8 @@ export class ProjectStore {
     const dir = path.join(this.dataDir, 'projects');
     try {
       return await fs.readdir(dir);
-    } catch (err: any) {
-      if (err.code === 'ENOENT') return [];
+    } catch (err: unknown) {
+      if (getErrorCode(err) === 'ENOENT') return [];
       throw err;
     }
   }

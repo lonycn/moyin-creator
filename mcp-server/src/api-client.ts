@@ -15,6 +15,28 @@ export interface ChatCompletionResult {
   raw: unknown;
 }
 
+type JsonRecord = Record<string, unknown>;
+
+function isRecord(value: unknown): value is JsonRecord {
+  return typeof value === 'object' && value !== null;
+}
+
+function readString(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
+
+function readNumber(value: unknown): number | undefined {
+  return typeof value === 'number' ? value : undefined;
+}
+
+function readRecord(value: unknown): JsonRecord | undefined {
+  return isRecord(value) ? value : undefined;
+}
+
+function readArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
 export class ApiClient {
   constructor(private readonly cfg: ProviderConfig) {}
 
@@ -47,8 +69,12 @@ export class ApiClient {
     if (!resp.ok) {
       throw new Error(`Chat API ${resp.status}: ${await resp.text()}`);
     }
-    const data: any = await resp.json();
-    const content = data?.choices?.[0]?.message?.content ?? '';
+    const data: unknown = await resp.json();
+    const root = readRecord(data);
+    const choices = readArray(root?.choices);
+    const firstChoice = readRecord(choices[0]);
+    const message = readRecord(firstChoice?.message);
+    const content = readString(message?.content) ?? '';
     return { content, raw: data };
   }
 
@@ -81,10 +107,14 @@ export class ApiClient {
     if (!resp.ok) {
       throw new Error(`Image API ${resp.status}: ${await resp.text()}`);
     }
-    const data: any = await resp.json();
-    const urls: string[] = (data?.data || [])
-      .map((d: any) => d?.url || d?.image_url || d?.b64_json)
-      .filter(Boolean);
+    const data: unknown = await resp.json();
+    const root = readRecord(data);
+    const urls = readArray(root?.data)
+      .map((item) => {
+        const record = readRecord(item);
+        return readString(record?.url) ?? readString(record?.image_url) ?? readString(record?.b64_json);
+      })
+      .filter((value): value is string => Boolean(value));
     return { urls, raw: data };
   }
 
@@ -119,8 +149,10 @@ export class ApiClient {
     if (!resp.ok) {
       throw new Error(`Video submit ${resp.status}: ${await resp.text()}`);
     }
-    const data: any = await resp.json();
-    const taskId = data?.task_id || data?.id || data?.data?.task_id;
+    const data: unknown = await resp.json();
+    const root = readRecord(data);
+    const nestedData = readRecord(root?.data);
+    const taskId = readString(root?.task_id) ?? readString(root?.id) ?? readString(nestedData?.task_id);
     if (!taskId) throw new Error(`Video submit missing task_id: ${JSON.stringify(data)}`);
     return { taskId, raw: data };
   }
@@ -138,8 +170,11 @@ export class ApiClient {
     if (!resp.ok) {
       throw new Error(`Video query ${resp.status}: ${await resp.text()}`);
     }
-    const data: any = await resp.json();
-    const rawStatus = String(data?.status || data?.task_status || '').toLowerCase();
+    const data: unknown = await resp.json();
+    const root = readRecord(data);
+    const output = readRecord(root?.output);
+    const nestedData = readRecord(root?.data);
+    const rawStatus = String(readString(root?.status) ?? readString(root?.task_status) ?? '').toLowerCase();
     let status: 'queued' | 'running' | 'succeeded' | 'failed' = 'queued';
     if (['success', 'succeeded', 'done', 'completed'].includes(rawStatus)) status = 'succeeded';
     else if (['failed', 'error', 'cancelled'].includes(rawStatus)) status = 'failed';
@@ -147,9 +182,9 @@ export class ApiClient {
 
     return {
       status,
-      videoUrl: data?.video_url || data?.output?.video_url || data?.data?.video_url,
-      progress: data?.progress,
-      error: data?.error || data?.message,
+      videoUrl: readString(root?.video_url) ?? readString(output?.video_url) ?? readString(nestedData?.video_url),
+      progress: readNumber(root?.progress),
+      error: readString(root?.error) ?? readString(root?.message),
       raw: data,
     };
   }
@@ -165,7 +200,7 @@ export async function pollVideoTask(
   opts: { intervalMs: number; timeoutMs: number; onProgress?: (p: number) => void },
 ): Promise<{ videoUrl: string; raw: unknown }> {
   const start = Date.now();
-  while (true) {
+  while (Date.now() - start <= opts.timeoutMs) {
     const result = await client.getVideoTask(taskId);
     if (result.status === 'succeeded' && result.videoUrl) {
       return { videoUrl: result.videoUrl, raw: result.raw };
@@ -174,9 +209,7 @@ export async function pollVideoTask(
       throw new Error(`Video task failed: ${result.error || 'unknown'}`);
     }
     if (typeof result.progress === 'number') opts.onProgress?.(result.progress);
-    if (Date.now() - start > opts.timeoutMs) {
-      throw new Error(`Video task timeout after ${opts.timeoutMs}ms (task=${taskId})`);
-    }
     await new Promise((r) => setTimeout(r, opts.intervalMs));
   }
+  throw new Error(`Video task timeout after ${opts.timeoutMs}ms (task=${taskId})`);
 }

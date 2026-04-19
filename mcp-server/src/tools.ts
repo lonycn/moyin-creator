@@ -18,11 +18,124 @@ export interface ToolContext {
   cfg: ServerConfig;
 }
 
-export interface ToolDef<I = any, O = any> {
+type JsonRecord = Record<string, unknown>;
+
+interface ProjectMeta extends JsonRecord {
+  projectId: string;
+  title: string;
+  synopsis: string;
+  createdAt: string;
+}
+
+interface Character extends JsonRecord {
+  name: string;
+  description?: string;
+  referenceImageUrl?: string;
+  referencePrompt?: string;
+}
+
+interface Scene extends JsonRecord {
+  id: string;
+  title?: string;
+  location?: string;
+  timeOfDay?: string;
+  summary?: string;
+  characters?: string[];
+  referenceImageUrl?: string;
+  referencePrompt?: string;
+}
+
+interface ScriptData extends JsonRecord {
+  title?: string;
+  synopsis?: string;
+  style?: string;
+  characters?: Character[];
+  scenes?: Scene[];
+}
+
+interface Shot extends JsonRecord {
+  id: string;
+  sceneId: string;
+  shotType?: string;
+  cameraMovement?: string;
+  visualPrompt?: string;
+  action?: string;
+  dialogue?: string;
+  duration?: number;
+  videoTaskId?: string;
+  videoPrompt?: string;
+  videoUrl?: string;
+}
+
+export interface ToolDef<I = unknown, O = unknown> {
   name: string;
   description: string;
   inputSchema: z.ZodType<I>;
   handler: (input: I, ctx: ToolContext) => Promise<O>;
+}
+
+function isRecord(value: unknown): value is JsonRecord {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function parseJsonRecord(value: string): JsonRecord {
+  const parsed: unknown = JSON.parse(value);
+  if (!isRecord(parsed)) {
+    throw new Error('LLM did not return a JSON object');
+  }
+  return parsed;
+}
+
+function readString(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
+
+function readStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+}
+
+function readRecordArray(value: unknown): JsonRecord[] {
+  return Array.isArray(value) ? value.filter(isRecord) : [];
+}
+
+function toCharacter(record: JsonRecord): Character | null {
+  const name = readString(record.name);
+  if (!name) return null;
+  return {
+    ...record,
+    name,
+    description: readString(record.description),
+    referenceImageUrl: readString(record.referenceImageUrl),
+    referencePrompt: readString(record.referencePrompt),
+  };
+}
+
+function toScene(record: JsonRecord): Scene | null {
+  const id = readString(record.id);
+  if (!id) return null;
+  return {
+    ...record,
+    id,
+    title: readString(record.title),
+    location: readString(record.location),
+    timeOfDay: readString(record.timeOfDay),
+    summary: readString(record.summary),
+    characters: readStringArray(record.characters),
+    referenceImageUrl: readString(record.referenceImageUrl),
+    referencePrompt: readString(record.referencePrompt),
+  };
+}
+
+function readCharacters(value: unknown): Character[] {
+  return readRecordArray(value).map(toCharacter).filter((item): item is Character => item !== null);
+}
+
+function readScenes(value: unknown): Scene[] {
+  return readRecordArray(value).map(toScene).filter((item): item is Scene => item !== null);
+}
+
+function getErrorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
 }
 
 // ============ Project ============
@@ -56,9 +169,9 @@ const listProjectsTool: ToolDef = {
   inputSchema: ListProjectsInput,
   handler: async (_input, { store }) => {
     const ids = await store.listProjects();
-    const projects = [] as any[];
+    const projects: ProjectMeta[] = [];
     for (const id of ids) {
-      const meta = await store.readJson<any>(id, 'project');
+      const meta = await store.readJson<ProjectMeta>(id, 'project');
       if (meta) projects.push(meta);
     }
     return { projects };
@@ -101,24 +214,33 @@ const parseScriptTool: ToolDef = {
       temperature: 0.3,
     });
 
-    let parsed: any;
+    let parsed: JsonRecord;
     try {
-      parsed = JSON.parse(result.content);
+      parsed = parseJsonRecord(result.content);
     } catch {
       throw new Error(`LLM did not return valid JSON: ${result.content.slice(0, 200)}`);
     }
 
-    await store.writeJson(input.projectId, 'script', parsed);
-    await store.writeJson(input.projectId, 'characters', parsed.characters || []);
-    await store.writeJson(input.projectId, 'scenes', parsed.scenes || []);
+    const scriptData: ScriptData = {
+      ...parsed,
+      title: readString(parsed.title),
+      synopsis: readString(parsed.synopsis),
+      style: readString(parsed.style),
+      characters: readCharacters(parsed.characters),
+      scenes: readScenes(parsed.scenes),
+    };
+
+    await store.writeJson(input.projectId, 'script', scriptData);
+    await store.writeJson(input.projectId, 'characters', scriptData.characters ?? []);
+    await store.writeJson(input.projectId, 'scenes', scriptData.scenes ?? []);
 
     return {
-      title: parsed.title,
-      style: parsed.style,
-      characterCount: (parsed.characters || []).length,
-      sceneCount: (parsed.scenes || []).length,
-      characters: (parsed.characters || []).map((c: any) => c.name),
-      scenes: (parsed.scenes || []).map((s: any) => ({ id: s.id, title: s.title, summary: s.summary })),
+      title: scriptData.title,
+      style: scriptData.style,
+      characterCount: (scriptData.characters ?? []).length,
+      sceneCount: (scriptData.scenes ?? []).length,
+      characters: (scriptData.characters ?? []).map((c) => c.name),
+      scenes: (scriptData.scenes ?? []).map((s) => ({ id: s.id, title: s.title, summary: s.summary })),
     };
   },
 };
@@ -136,11 +258,11 @@ const generateCharacterImageTool: ToolDef = {
   description: '为指定角色生成参考图（用于后续保持角色一致性）。生成后图片 URL 会回写到 characters.json。',
   inputSchema: GenerateCharacterImageInput,
   handler: async (input, { client, store }) => {
-    const characters = (await store.readJson<any[]>(input.projectId, 'characters')) || [];
+    const characters = (await store.readJson<Character[]>(input.projectId, 'characters')) || [];
     const ch = characters.find((c) => c.name === input.characterName);
     if (!ch) throw new Error(`Character not found: ${input.characterName}`);
 
-    const script = await store.readJson<any>(input.projectId, 'script');
+    const script = await store.readJson<ScriptData>(input.projectId, 'script');
     const style = script?.style || '2D 动漫';
 
     const prompt = [
@@ -175,11 +297,11 @@ const generateSceneImageTool: ToolDef = {
   description: '为指定场景生成环境参考图。',
   inputSchema: GenerateSceneImageInput,
   handler: async (input, { client, store }) => {
-    const scenes = (await store.readJson<any[]>(input.projectId, 'scenes')) || [];
+    const scenes = (await store.readJson<Scene[]>(input.projectId, 'scenes')) || [];
     const scene = scenes.find((s) => s.id === input.sceneId);
     if (!scene) throw new Error(`Scene not found: ${input.sceneId}`);
 
-    const script = await store.readJson<any>(input.projectId, 'script');
+    const script = await store.readJson<ScriptData>(input.projectId, 'script');
     const style = script?.style || '2D 动漫';
 
     const prompt = [
@@ -216,7 +338,7 @@ const generateShotsTool: ToolDef = {
   description: '为指定场景生成分镜列表（含每个分镜的镜头语言、视觉描述、对白）。',
   inputSchema: GenerateShotsInput,
   handler: async (input, { client, store }) => {
-    const scenes = (await store.readJson<any[]>(input.projectId, 'scenes')) || [];
+    const scenes = (await store.readJson<Scene[]>(input.projectId, 'scenes')) || [];
     const scene = scenes.find((s) => s.id === input.sceneId);
     if (!scene) throw new Error(`Scene not found: ${input.sceneId}`);
 
@@ -234,24 +356,27 @@ const generateShotsTool: ToolDef = {
       temperature: 0.5,
     });
 
-    let parsed: any;
-    try { parsed = JSON.parse(result.content); } catch {
+    let parsed: JsonRecord;
+    try {
+      parsed = parseJsonRecord(result.content);
+    } catch {
       throw new Error(`LLM did not return valid JSON: ${result.content.slice(0, 200)}`);
     }
-    const newShots = (parsed.shots || []).map((s: any, i: number) => ({
-      ...s,
-      id: s.id || `${input.sceneId}-shot-${i + 1}`,
+
+    const newShots: Shot[] = readRecordArray(parsed.shots).map((shotRecord, i) => ({
+      ...shotRecord,
+      id: readString(shotRecord.id) || `${input.sceneId}-shot-${i + 1}`,
       sceneId: input.sceneId,
     }));
 
-    const allShots = (await store.readJson<any[]>(input.projectId, 'shots')) || [];
-    const filtered = allShots.filter((s: any) => s.sceneId !== input.sceneId);
+    const allShots = (await store.readJson<Shot[]>(input.projectId, 'shots')) || [];
+    const filtered = allShots.filter((s) => s.sceneId !== input.sceneId);
     await store.writeJson(input.projectId, 'shots', [...filtered, ...newShots]);
 
     return {
       sceneId: input.sceneId,
       count: newShots.length,
-      shots: newShots.map((s: any) => ({ id: s.id, shotType: s.shotType, visualPrompt: s.visualPrompt })),
+      shots: newShots.map((s) => ({ id: s.id, shotType: s.shotType, visualPrompt: s.visualPrompt })),
     };
   },
 };
@@ -271,12 +396,12 @@ const generateShotVideoTool: ToolDef = {
   description: '为指定分镜生成视频（S 级 Seedance）。会自动收集对应场景图 + 涉及角色的参考图作为多模态输入。耗时较长，返回 videoUrl 或 taskId。',
   inputSchema: GenerateShotVideoInput,
   handler: async (input, { client, store, cfg }) => {
-    const shots = (await store.readJson<any[]>(input.projectId, 'shots')) || [];
+    const shots = (await store.readJson<Shot[]>(input.projectId, 'shots')) || [];
     const shot = shots.find((s) => s.id === input.shotId);
     if (!shot) throw new Error(`Shot not found: ${input.shotId}`);
 
-    const scenes = (await store.readJson<any[]>(input.projectId, 'scenes')) || [];
-    const characters = (await store.readJson<any[]>(input.projectId, 'characters')) || [];
+    const scenes = (await store.readJson<Scene[]>(input.projectId, 'scenes')) || [];
+    const characters = (await store.readJson<Character[]>(input.projectId, 'characters')) || [];
     const scene = scenes.find((s) => s.id === shot.sceneId);
 
     // 收集参考图：场景图 + 角色图
@@ -318,8 +443,8 @@ const generateShotVideoTool: ToolDef = {
       shot.videoUrl = videoUrl;
       await store.writeJson(input.projectId, 'shots', shots);
       return { shotId: shot.id, videoUrl, taskId, status: 'succeeded' };
-    } catch (err: any) {
-      if (String(err.message).includes('timeout')) {
+    } catch (err: unknown) {
+      if (getErrorMessage(err).includes('timeout')) {
         return { shotId: shot.id, taskId, status: 'pending', message: `Still running, query with get_video_task_status(taskId="${taskId}")` };
       }
       throw err;
@@ -337,7 +462,7 @@ const getVideoTaskStatusTool: ToolDef = {
   description: '查询某个分镜视频生成任务的当前状态（用于异步等待）。',
   inputSchema: GetVideoTaskStatusInput,
   handler: async (input, { client, store }) => {
-    const shots = (await store.readJson<any[]>(input.projectId, 'shots')) || [];
+    const shots = (await store.readJson<Shot[]>(input.projectId, 'shots')) || [];
     const shot = shots.find((s) => s.id === input.shotId);
     if (!shot?.videoTaskId) throw new Error(`No video task for shot ${input.shotId}`);
     const result = await client.getVideoTask(shot.videoTaskId);
@@ -367,7 +492,7 @@ const getProjectTool: ToolDef = {
   description: '读取项目当前完整状态（剧本 + 场景 + 角色 + 分镜 + 视频生成进度）。',
   inputSchema: GetProjectInput,
   handler: async (input, { store }) => {
-    const meta = await store.readJson<any>(input.projectId, 'project');
+    const meta = await store.readJson<ProjectMeta>(input.projectId, 'project');
     if (!meta) throw new Error(`Project not found: ${input.projectId}`);
     return {
       ...meta,

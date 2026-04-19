@@ -27,6 +27,21 @@ import { ProjectStore } from './storage.js';
 import { TOOLS, type ToolContext } from './tools.js';
 import { PROMPTS } from './prompts.js';
 
+type JsonSchema = Record<string, unknown>;
+type ZodObjectSchema = z.ZodObject<z.ZodRawShape>;
+
+function getInnerType(field: z.ZodTypeAny): z.ZodTypeAny {
+  let current = field;
+  while (current instanceof z.ZodOptional || current instanceof z.ZodNullable || current instanceof z.ZodDefault) {
+    if (current instanceof z.ZodOptional || current instanceof z.ZodNullable) {
+      current = current.unwrap();
+      continue;
+    }
+    current = current.removeDefault();
+  }
+  return current;
+}
+
 async function main() {
   const cfg = loadConfig();
   const ctx: ToolContext = {
@@ -44,7 +59,7 @@ async function main() {
   const toolList = TOOLS.map((t) => ({
     name: t.name,
     description: t.description,
-    inputSchema: zodToJsonSchema(t.inputSchema as z.ZodObject<any>),
+    inputSchema: zodToJsonSchema(t.inputSchema),
   }));
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: toolList }));
@@ -93,14 +108,17 @@ async function main() {
  * 极简的 zod → JSONSchema 转换。仅支持 ZodObject + 常见基本类型，
  * 够 MCP tool 的描述用，避免引入额外依赖（zod-to-json-schema 也可，但这里手写更可控）。
  */
-function zodToJsonSchema(schema: z.ZodObject<any>): Record<string, unknown> {
+function zodToJsonSchema(schema: z.ZodTypeAny): JsonSchema {
+  if (!(schema instanceof z.ZodObject)) {
+    throw new Error('Only ZodObject schemas are supported for MCP tool inputSchema');
+  }
   const shape = schema.shape;
-  const properties: Record<string, unknown> = {};
+  const properties: JsonSchema = {};
   const required: string[] = [];
   for (const [key, value] of Object.entries(shape)) {
-    const def = (value as z.ZodTypeAny)._def;
-    properties[key] = zodFieldToJsonSchema(value as z.ZodTypeAny);
-    if (!def.typeName?.includes('Optional') && !(value as any).isOptional?.()) {
+    const typedValue = value as z.ZodTypeAny;
+    properties[key] = zodFieldToJsonSchema(typedValue);
+    if (!typedValue.isOptional()) {
       required.push(key);
     }
   }
@@ -111,25 +129,17 @@ function zodToJsonSchema(schema: z.ZodObject<any>): Record<string, unknown> {
   };
 }
 
-function zodFieldToJsonSchema(field: z.ZodTypeAny): Record<string, unknown> {
+function zodFieldToJsonSchema(field: z.ZodTypeAny): JsonSchema {
   const description = field.description;
   const base = (() => {
-    // 解开 Optional / Default 包装
-    let inner = field;
-    while (
-      inner instanceof z.ZodOptional ||
-      inner instanceof z.ZodDefault ||
-      inner instanceof z.ZodNullable
-    ) {
-      inner = (inner._def as any).innerType;
-    }
+    const inner = getInnerType(field);
 
     if (inner instanceof z.ZodString) return { type: 'string' };
     if (inner instanceof z.ZodNumber) return { type: 'number' };
     if (inner instanceof z.ZodBoolean) return { type: 'boolean' };
     if (inner instanceof z.ZodArray) return { type: 'array', items: zodFieldToJsonSchema(inner._def.type) };
-    if (inner instanceof z.ZodEnum) return { type: 'string', enum: inner._def.values };
-    if (inner instanceof z.ZodObject) return zodToJsonSchema(inner);
+    if (inner instanceof z.ZodEnum) return { type: 'string', enum: inner.options };
+    if (inner instanceof z.ZodObject) return zodToJsonSchema(inner as ZodObjectSchema);
     return { type: 'string' };
   })();
   return description ? { ...base, description } : base;
