@@ -1,0 +1,25 @@
+{
+  "name": "@moyin-creator/mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server for Moyin Creator — let LLMs drive the script-to-video pipeline.",
+  "type": "module",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "bin": {
+    "moyin-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "start": "node dist/index.js",
+    "inspect": "npx @modelcontextprotocol/inspector node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.4.0"
+  }
+}

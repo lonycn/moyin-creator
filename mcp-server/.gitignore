@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+.env.local
+
+# 父级 .gitignore 屏蔽了 *-lock.json，但子项目需要锁版本
+!package-lock.json

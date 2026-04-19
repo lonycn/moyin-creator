@@ -21,8 +21,10 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "electron-vite dev",
+    "dev": "vite --config vite.web.config.ts",
+    "dev:desktop": "electron-vite dev",
     "build": "npm run build:desktop",
+    "build:web": "vite --config vite.web.config.ts build",
     "prebuild": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/prebuild-cleanup.ps1",
     "build:desktop": "node ./scripts/build-desktop.mjs",
     "build:win": "node ./scripts/build-desktop.mjs --win",
