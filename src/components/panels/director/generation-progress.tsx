@@ -8,11 +8,8 @@
  * Shows overall generation progress and controls
  */
 
-import { useDirectorStore, useIsGenerating, useOverallProgress, useActiveDirectorProject } from "@/stores/director-store";
-import { Button } from "@/components/ui/button";
+import { useDirectorStore, useIsGenerating, useActiveDirectorProject } from "@/stores/director-store";
 import { 
-  Play, 
-  StopCircle,
   CheckCircle2,
   AlertCircle,
   Clock,
@@ -32,7 +29,6 @@ export function GenerationProgress() {
   const { 
     sceneProgress,
     config,
-    cancelAll,
     onSceneProgressUpdate,
     onSceneImageCompleted,
     onSceneCompleted,
@@ -42,7 +38,6 @@ export function GenerationProgress() {
   } = useDirectorStore();
 
   const isGenerating = useIsGenerating();
-  const overallPercent = useOverallProgress();
 
   // Get API keys from config store
   const apiKeys = useAPIConfigStore((state) => state.apiKeys);
@@ -95,8 +90,6 @@ export function GenerationProgress() {
 
   // Determine if we're generating images or videos
   const isImageMode = screenplayStatus === 'generating_images';
-  const isVideoMode = screenplayStatus === 'generating_videos';
-
   // Start generation handler (images or videos based on mode)
   const handleStartGeneration = useCallback(async () => {
     if (!screenplay) return;
@@ -191,7 +184,6 @@ export function GenerationProgress() {
 
   if (!screenplay) return null;
 
-  const hasNotStarted = overallProgress.percent === 0 && !isGenerating;
   const isComplete = overallProgress.completed === overallProgress.total;
 
   return (

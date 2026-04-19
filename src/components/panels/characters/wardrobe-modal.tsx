@@ -663,7 +663,7 @@ const WARDROBE_SHEET_ELEMENTS = [
 async function generateVariationImage(params: {
   character: Character;
   variation: CharacterVariation;
-  featureConfig: ReturnType<typeof getFeatureConfig> & {};
+  featureConfig: ReturnType<typeof getFeatureConfig>;
 }): Promise<string> {
   const { character, variation, featureConfig } = params;
   const apiKey = featureConfig.apiKey;

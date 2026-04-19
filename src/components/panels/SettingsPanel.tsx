@@ -60,9 +60,7 @@ import {
   Check,
   X,
   Loader2,
-  MessageSquare,
   Zap,
-  ScanEye,
   Info,
   Image,
   RotateCcw,
@@ -159,7 +157,6 @@ export function SettingsPanel() {
     if (!mf || parseApiKeys(mf.apiKey).length === 0) return;
 
     const pid = mf.id;
-    const models = mf.model || [];
     const defaults: Record<string, string> = {
       script_analysis: `${pid}:deepseek-v3.2`,
       character_generation: `${pid}:gemini-3-pro-image-preview`,
@@ -206,7 +203,6 @@ export function SettingsPanel() {
     if (changed) {
       console.log('[SettingsPanel] Auto-applied memefast default bindings');
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [providers]);
 
   useEffect(() => {
@@ -426,7 +422,11 @@ export function SettingsPanel() {
       assignCharactersToProject(activeProjectId);
     }
     // Rehydrate to load/unload other projects' data
-    try { await useCharacterLibraryStore.persist.rehydrate(); } catch {}
+    try {
+      await useCharacterLibraryStore.persist.rehydrate();
+    } catch (error) {
+      console.debug("[SettingsPanel] Failed to rehydrate character store:", error);
+    }
   };
 
   const handleToggleShareScenes = async (checked: boolean) => {
@@ -434,7 +434,11 @@ export function SettingsPanel() {
     if (!checked && activeProjectId) {
       assignScenesToProject(activeProjectId);
     }
-    try { await useSceneStore.persist.rehydrate(); } catch {}
+    try {
+      await useSceneStore.persist.rehydrate();
+    } catch (error) {
+      console.debug("[SettingsPanel] Failed to rehydrate scene store:", error);
+    }
   };
 
   const handleToggleShareMedia = async (checked: boolean) => {
@@ -442,7 +446,11 @@ export function SettingsPanel() {
     if (!checked && activeProjectId) {
       assignMediaToProject(activeProjectId);
     }
-    try { await useMediaStore.persist.rehydrate(); } catch {}
+    try {
+      await useMediaStore.persist.rehydrate();
+    } catch (error) {
+      console.debug("[SettingsPanel] Failed to rehydrate media store:", error);
+    }
   };
 
   // Unified storage handlers

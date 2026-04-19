@@ -240,7 +240,6 @@ export function ScriptView() {
     if (Object.keys(fixes).length > 0) {
       setScriptCalibrationState(activeProjectId, fixes as never);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProjectId]);
 
   // Keep last stable project id during transient null windows (e.g. duplicate flow)
@@ -366,7 +365,6 @@ export function ScriptView() {
         handleStructureCompletion();
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveRawScript, activeEpisodeIndex, structureCompletionStatus]);
 
   // 计算各集的分镜生成状态

@@ -8,7 +8,7 @@
  * Based on CineGen-AI StageAssets.tsx Wardrobe Modal
  */
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -33,10 +33,8 @@ import {
   Wand2,
   Loader2,
   Image as ImageIcon,
-  X,
   User,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface WardrobeModalProps {

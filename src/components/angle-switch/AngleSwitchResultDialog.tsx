@@ -63,12 +63,6 @@ export function AngleSwitchResultDialog({
     ? history[selectedHistoryIndex].angleLabel
     : result.angleLabel;
 
-  const handleImageClick = (imageUrl: string, label: string) => {
-    if (onPreviewInCenter) {
-      onPreviewInCenter(imageUrl, label);
-    }
-  };
-
   const handleDownload = async (imageUrl: string, filename: string) => {
     try {
       const response = await fetch(imageUrl);

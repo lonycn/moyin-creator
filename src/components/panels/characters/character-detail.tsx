@@ -19,7 +19,6 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { 
   User,
-  Image as ImageIcon,
   Edit3,
   Check,
   X,

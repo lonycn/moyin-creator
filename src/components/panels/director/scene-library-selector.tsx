@@ -12,7 +12,7 @@ import React, { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { Check, Layers, MapPin } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { useSceneStore } from "@/stores/scene-store";
+import { useSceneStore, type Scene } from "@/stores/scene-store";
 import { useResolvedImageUrl } from "@/hooks/use-resolved-image-url";
 import { useAppSettingsStore } from "@/stores/app-settings-store";
 import { useProjectStore } from "@/stores/project-store";
@@ -37,6 +37,10 @@ interface SceneLibrarySelectorProps {
   disabled?: boolean;
 }
 
+type SceneWithContactSheet = Scene & {
+  contactSheetImage?: string;
+};
+
 /** 解析 local-image:// 缩略图 */
 function ResolvedImg({ src, alt, className }: { src: string; alt: string; className?: string }) {
   const resolved = useResolvedImageUrl(src);
@@ -58,6 +62,8 @@ export function SceneLibrarySelector({
   const { scenes: libraryScenes } = useSceneStore();
   const { resourceSharing } = useAppSettingsStore();
   const { activeProjectId } = useProjectStore();
+  const getScenePreviewImage = (scene?: SceneWithContactSheet | null) =>
+    scene?.referenceImage || scene?.contactSheetImage || scene?.referenceImageBase64 || null;
   
   const visibleScenes = useMemo(() => {
     if (resourceSharing.shareScenes) return libraryScenes;
@@ -157,12 +163,6 @@ export function SceneLibrarySelector({
   const hasSelection = !!selectedSceneLibraryId;
   
   // 预览参考图（提取到组件级别以便使用 hook）
-  const previewRefImage = selectedSubView?.referenceImage || selectedSubView?.referenceImageBase64
-    || selectedViewpoint?.referenceImage || selectedViewpoint?.referenceImageBase64
-    || selectedScene?.referenceImage || (selectedScene as any)?.contactSheetImage || selectedScene?.referenceImageBase64
-    || null;
-  const resolvedPreview = useResolvedImageUrl(previewRefImage);
-  
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
@@ -208,7 +208,7 @@ export function SceneLibrarySelector({
                 <div className="max-h-[300px] overflow-y-auto space-y-1 pr-1">
                   {parentScenes.map((s) => {
                     const isSelected = selectedSceneLibraryId === s.id;
-                    const thumbnail = s.referenceImage || (s as any).contactSheetImage || s.referenceImageBase64;
+                    const thumbnail = getScenePreviewImage(s as SceneWithContactSheet);
                     const hasViewpoints = libraryScenes.some(v => v.parentSceneId === s.id);
                     return (
                       <button

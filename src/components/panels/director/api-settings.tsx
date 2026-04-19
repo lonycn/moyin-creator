@@ -13,7 +13,7 @@ import { useAPIConfigStore } from "@/stores/api-config-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
+import {
   Settings, 
   Eye, 
   EyeOff, 
@@ -23,7 +23,6 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import type { ProviderId } from "@opencut/ai-core";
 
 interface APISettingsProps {

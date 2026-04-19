@@ -60,10 +60,9 @@ export function ShotGridView({ onGenerateImage, onGenerateVideo }: ShotGridViewP
   const { activeProjectId } = useProjectStore();
   const scriptProject = useActiveScriptProject();
   const { updateShot } = useScriptStore();
-  const { characters, getCharacterById } = useCharacterLibraryStore();
+  const { getCharacterById } = useCharacterLibraryStore();
 
   const [activeShotId, setActiveShotId] = useState<string | null>(null);
-  const [processingId, setProcessingId] = useState<string | null>(null);
   const [processingType, setProcessingType] = useState<"start" | "end" | "video" | null>(null);
   const [batchProgress, setBatchProgress] = useState<{
     isVisible: boolean;
@@ -149,7 +148,6 @@ export function ShotGridView({ onGenerateImage, onGenerateVideo }: ShotGridViewP
     }
 
     const kfId = `kf-${shot.id}-${type}-${Date.now()}`;
-    setProcessingId(kfId);
     setProcessingType(type);
 
     try {
@@ -181,7 +179,6 @@ export function ShotGridView({ onGenerateImage, onGenerateVideo }: ShotGridViewP
     } catch (error) {
       toast.error(`生成失败: ${(error as Error).message}`);
     } finally {
-      setProcessingId(null);
       setProcessingType(null);
     }
   };
@@ -201,7 +198,6 @@ export function ShotGridView({ onGenerateImage, onGenerateVideo }: ShotGridViewP
       return;
     }
 
-    setProcessingId(shot.id);
     setProcessingType("video");
 
     try {
@@ -224,7 +220,6 @@ export function ShotGridView({ onGenerateImage, onGenerateVideo }: ShotGridViewP
     } catch (error) {
       toast.error(`视频生成失败: ${(error as Error).message}`);
     } finally {
-      setProcessingId(null);
       setProcessingType(null);
     }
   };

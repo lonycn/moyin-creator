@@ -298,7 +298,7 @@ export function ShotListPanel({ onGenerateImage }: ShotListPanelProps) {
                     {getSceneName(sceneId)}
                   </div>
                   <div className="space-y-1">
-                    {sceneShots.map((shot, idx) => {
+                    {sceneShots.map((shot) => {
                       const globalIdx = shots.findIndex((s) => s.id === shot.id);
                       const startKf = shot.keyframes?.find((k) => k.type === "start");
                       const hasImage = !!(startKf?.imageUrl || shot.imageUrl);

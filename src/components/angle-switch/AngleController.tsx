@@ -12,7 +12,7 @@
  * - 磁吸效果：接近标准角度时自动吸附，解决"太丝滑"问题
  */
 
-import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import {
   HORIZONTAL_DIRECTIONS,

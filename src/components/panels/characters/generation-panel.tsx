@@ -29,15 +29,11 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectSeparator,
-  SelectGroup,
-  SelectLabel,
 } from "@/components/ui/select";
 import { 
   Loader2,
   ImagePlus,
   X,
-  Shuffle,
   FileImage,
   ChevronDown,
   ChevronRight,
@@ -48,7 +44,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { StylePicker } from "@/components/ui/style-picker";
-import { getStyleById, getStylePrompt, type VisualStyleId, DEFAULT_STYLE_ID } from "@/lib/constants/visual-styles";
+import { getStyleById, DEFAULT_STYLE_ID } from "@/lib/constants/visual-styles";
 
 // Gender presets
 const GENDER_PRESETS = [
@@ -82,13 +78,13 @@ interface GenerationPanelProps {
 }
 
 export function GenerationPanel({ selectedCharacter, onCharacterCreated }: GenerationPanelProps) {
+  void selectedCharacter;
   const { 
     addCharacter, 
     updateCharacter,
     addCharacterView,
     selectCharacter,
     generationStatus,
-    generatingCharacterId,
     setGenerationStatus,
     setGeneratingCharacter,
     currentFolderId,
@@ -289,41 +285,6 @@ export function GenerationPanel({ selectedCharacter, onCharacterCreated }: Gener
 
   const removeImage = (index: number) => {
     setReferenceImages(referenceImages.filter((_, i) => i !== index));
-  };
-
-  const resetForm = () => {
-    setName("");
-    setDescription("");
-    setGender("");
-    setAge("");
-    setPersonality("");
-    setRole("");
-    setTraits("");
-    setSkills("");
-    setKeyActions("");
-    setAppearance("");
-    setRelationships("");
-    setTags([]);
-    setNotes("");
-    // === 重置专业视觉提示词 ===
-    setVisualPromptEn("");
-    setVisualPromptZh("");
-    // === 重置6层身份锚点 ===
-    setIdentityAnchors(undefined);
-    setCharNegativePrompt(undefined);
-    // === 重置年代信息 ===
-    setStoryYear(undefined);
-    setEra(undefined);
-    // === 重置集作用域 ===
-    setSourceEpisodeId(undefined);
-    setReferenceImages([]);
-    setStyleId(DEFAULT_STYLE_ID);
-    setSelectedElements(SHEET_ELEMENTS.filter(e => e.default).map(e => e.id));
-    setPreviewUrl(null);
-    setPreviewCharacterId(null);
-    // === 重置 AI 校准状态 ===
-    setCalibrationExpanded(false);
-    setIsManuallyModified(false);
   };
 
   // 创建新角色并生成图片（始终新建，不会覆盖已有角色）

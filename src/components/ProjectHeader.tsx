@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { useProjectStore } from "@/stores/project-store";
 import { useScriptStore } from "@/stores/script-store";
 import { useMediaPanelStore, stages } from "@/stores/media-panel-store";
-import { Cloud, CloudOff, Loader2, Check, ChevronRight } from "lucide-react";
+import { CloudOff, Loader2, Check, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type SaveStatus = "saved" | "saving" | "unsaved";

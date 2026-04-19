@@ -51,7 +51,6 @@ export function AngleSwitchDialog({
   onGenerate,
   frameType = "start",
   previewUrl,
-  sameSceneShotsCount = 0,
   isGenerating = false,
 }: AngleSwitchDialogProps) {
   const [currentAngle, setCurrentAngle] = useState<{

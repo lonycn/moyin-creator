@@ -518,6 +518,7 @@ function FolderContextMenu({
   onRename: () => void;
   onDelete: () => void;
 }) {
+  void folder;
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
@@ -550,6 +551,7 @@ function CharacterContextMenu({
   onDelete: () => void;
   onMove: (folderId: string | null) => void;
 }) {
+  void character;
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>

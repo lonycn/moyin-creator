@@ -1133,7 +1133,6 @@ export const useAPIConfigStore = create<APIConfigStore>()(
       version: 13,  // v13: clear stale metadata caches on upgrade + fix chained migration
       migrate: (persistedState: unknown, version: number) => {
         // Use mutable result object for chained migration
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result = { ...(persistedState as any) } as Partial<APIConfigState> & { imageHostConfig?: LegacyImageHostConfig };
         console.log(`[APIConfig] Chained migration: v${version} → v13`);
         

@@ -2595,7 +2595,6 @@ export function SClassScenes({ onBack, onGenerateVideos }: SplitScenesProps) {
       }
     }
     setIsMergedRunning(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [splitScenes, storyboardConfig, getApiKey, updateSplitSceneImage, updateSplitSceneImageStatus, updateSplitSceneEndFrame, updateSplitSceneEndFrameStatus]);
 
   // 复用单图生成的 API 路径，封装为通用函数（支持首帧/尾帧）

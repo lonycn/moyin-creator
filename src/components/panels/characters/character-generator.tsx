@@ -15,7 +15,7 @@
  */
 
 import { useState } from "react";
-import { type Character, type CharacterView, useCharacterLibraryStore } from "@/stores/character-library-store";
+import { type Character, useCharacterLibraryStore } from "@/stores/character-library-store";
 import { generateCharacterImage as generateCharacterImageAPI } from "@/lib/ai/image-generator";
 import { saveImageToLocal } from "@/lib/image-storage";
 import { useMediaStore } from "@/stores/media-store";
@@ -24,17 +24,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
-  Wand2,
   Loader2,
   Check,
   AlertCircle,
   RotateCcw,
-  User,
   FileImage,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { getStyleById, getStylePrompt } from "@/lib/constants/visual-styles";
+import { getStyleById } from "@/lib/constants/visual-styles";
 
 // Character sheet elements that can be included
 const SHEET_ELEMENTS = [

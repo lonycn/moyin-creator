@@ -16,8 +16,8 @@ import { useAPIConfigStore } from "@/stores/api-config-store";
 import { useCharacterLibraryStore, type Character } from "@/stores/character-library-store";
 import { useAppSettingsStore } from "@/stores/app-settings-store";
 import { useProjectStore } from "@/stores/project-store";
-import { getWorkerBridge, initializeWorkerBridge } from "@/lib/ai/worker-bridge";
-import { Wand2, ImagePlus, X, Settings, AlertCircle, Shuffle, ChevronDown, User, Users, Plus, Check, Monitor, Smartphone } from "lucide-react";
+import { initializeWorkerBridge } from "@/lib/ai/worker-bridge";
+import { Wand2, ImagePlus, X, Settings, AlertCircle, User, Users, Plus, Check, Monitor, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import {
   Tooltip,
@@ -31,9 +31,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectSeparator,
-  SelectGroup,
-  SelectLabel,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import {
@@ -49,8 +46,9 @@ import {
   type Resolution 
 } from "@/lib/storyboard/grid-calculator";
 import { uploadMultipleImages } from "@/lib/utils/image-upload";
-import { VISUAL_STYLE_PRESETS, getStyleTokens, getStylesByCategory, type VisualStyleId, DEFAULT_STYLE_ID } from "@/lib/constants/visual-styles";
+import { VISUAL_STYLE_PRESETS, getStyleTokens, type VisualStyleId, DEFAULT_STYLE_ID } from "@/lib/constants/visual-styles";
 import { StylePicker } from "@/components/ui/style-picker";
+import type { GenerationConfig } from "@opencut/ai-core";
 
 const EXAMPLE_PROMPTS = [
   "一只可爱的小猫在草地上玩耍，追逐蝴蝶",
@@ -113,8 +111,8 @@ export function ScreenplayInput({ onGenerateStoryboard }: ScreenplayInputProps) 
   const sceneValidation = validateSceneCount(sceneCount, resolution);
   const isSceneCountValid = sceneValidation.isValid;
 
-  const { startScreenplayGeneration, setScreenplayError, config, updateConfig, setScreenplayDraft } = useDirectorStore();
-  const { checkVideoGenerationKeys, checkChatKeys, isFeatureConfigured, getApiKey } = useAPIConfigStore();
+  const { startScreenplayGeneration, setScreenplayError, updateConfig, setScreenplayDraft } = useDirectorStore();
+  const { checkChatKeys, isFeatureConfigured, getApiKey } = useAPIConfigStore();
   const { characters } = useCharacterLibraryStore();
   const { resourceSharing } = useAppSettingsStore();
   const { activeProjectId } = useProjectStore();
@@ -313,7 +311,7 @@ export function ScreenplayInput({ onGenerateStoryboard }: ScreenplayInputProps) 
         setSelectedCharacters(prev => [...prev, newChar]);
         toast.success(`已添加角色: ${data.characterName}`);
       }
-    } catch (err) {
+    } catch (_error) {
       // Not a valid character drop
     }
   }, [selectedCharacters]);
@@ -466,7 +464,7 @@ export function ScreenplayInput({ onGenerateStoryboard }: ScreenplayInputProps) 
       aspectRatio,
       resolution,
       sceneCount,
-    } as any);
+    } satisfies Partial<GenerationConfig>);
 
     // Build prompt with character info
     const fullPrompt = buildPromptWithCharacters();
@@ -479,7 +477,7 @@ export function ScreenplayInput({ onGenerateStoryboard }: ScreenplayInputProps) 
       const chatApiKey = getApiKey('memefast');
       const chatProvider = 'memefast';
       
-      const screenplay = await bridge.generateScreenplay(fullPrompt, images, {
+      const screenplayConfig: Partial<GenerationConfig> = {
         aspectRatio,
         resolution,
         sceneCount,
@@ -487,7 +485,8 @@ export function ScreenplayInput({ onGenerateStoryboard }: ScreenplayInputProps) 
         apiKey: chatApiKey,
         chatProvider,
         baseUrl: typeof window !== 'undefined' ? window.location.origin : '',
-      } as any);
+      };
+      const screenplay = await bridge.generateScreenplay(fullPrompt, images, screenplayConfig);
 
       // DirectorStore will be updated via onScreenplayGenerated callback
       useDirectorStore.getState().onScreenplayGenerated(screenplay);
