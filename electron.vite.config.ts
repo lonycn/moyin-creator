@@ -3,6 +3,12 @@ import react from '@vitejs/plugin-react'
 import path from 'node:path'
 import type { Plugin } from 'vite'
 
+function getErrorMessage(error: unknown): string | undefined {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  return undefined;
+}
+
 /**
  * Vite 插件：API CORS 代理
  * 在开发服务器上注册 /__api_proxy 中间件，
@@ -61,14 +67,23 @@ function apiCorsProxyPlugin(): Plugin {
 
           res.writeHead(response.status, headers);
           res.end(Buffer.from(respBody));
-        } catch (err: any) {
-          const cause = err?.cause?.message || err?.cause?.code || '';
-          console.error(`[api-cors-proxy] Unexpected error: ${err?.message}${cause ? ' | cause: ' + cause : ''}`);
+        } catch (err: unknown) {
+          const errorMessage = getErrorMessage(err);
+          const cause =
+            typeof err === 'object' && err !== null && 'cause' in err
+              ? getErrorMessage(err.cause) ||
+                (typeof err.cause === 'object' && err.cause !== null && 'code' in err.cause
+                  ? String(err.cause.code)
+                  : '')
+              : '';
+          console.error(
+            `[api-cors-proxy] Unexpected error: ${errorMessage ?? 'Unknown error'}${cause ? ' | cause: ' + cause : ''}`,
+          );
           res.writeHead(502, {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
           });
-          res.end(JSON.stringify({ error: 'Proxy request failed', detail: err?.message, cause }));
+          res.end(JSON.stringify({ error: 'Proxy request failed', detail: errorMessage, cause }));
         }
       });
     },

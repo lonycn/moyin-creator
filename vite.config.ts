@@ -3,6 +3,12 @@ import path from 'node:path'
 import electron from 'vite-plugin-electron/simple'
 import react from '@vitejs/plugin-react'
 
+function getErrorMessage(error: unknown): string | undefined {
+  if (error instanceof Error) return error.message
+  if (typeof error === 'string') return error
+  return undefined
+}
+
 /**
  * Vite 插件：API CORS 代理
  *
@@ -71,13 +77,14 @@ function apiCorsProxyPlugin(): Plugin {
 
           res.writeHead(response.status, headers);
           res.end(Buffer.from(respBody));
-        } catch (err: any) {
-          console.error('[api-cors-proxy] Proxy error:', err?.message || err);
+        } catch (err: unknown) {
+          const errorMessage = getErrorMessage(err)
+          console.error('[api-cors-proxy] Proxy error:', errorMessage ?? err)
           res.writeHead(502, {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
           });
-          res.end(JSON.stringify({ error: 'Proxy request failed', detail: err?.message }));
+          res.end(JSON.stringify({ error: 'Proxy request failed', detail: errorMessage }));
         }
       });
     },

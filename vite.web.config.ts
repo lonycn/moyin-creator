@@ -9,6 +9,12 @@ import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'node:path'
 
+function getErrorMessage(error: unknown): string | undefined {
+  if (error instanceof Error) return error.message
+  if (typeof error === 'string') return error
+  return undefined
+}
+
 function apiCorsProxyPlugin(): Plugin {
   return {
     name: 'api-cors-proxy',
@@ -57,12 +63,13 @@ function apiCorsProxyPlugin(): Plugin {
 
           res.writeHead(response.status, headers)
           res.end(Buffer.from(respBody))
-        } catch (err: any) {
+        } catch (err: unknown) {
+          const errorMessage = getErrorMessage(err)
           res.writeHead(502, {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
           })
-          res.end(JSON.stringify({ error: 'Proxy request failed', detail: err?.message }))
+          res.end(JSON.stringify({ error: 'Proxy request failed', detail: errorMessage }))
         }
       })
     },

@@ -25,7 +25,7 @@
     "dev:desktop": "electron-vite dev",
     "build": "npm run build:desktop",
     "build:web": "vite --config vite.web.config.ts build",
-    "prebuild": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/prebuild-cleanup.ps1",
+    "prebuild": "node ./scripts/prebuild-cleanup.mjs",
     "build:desktop": "node ./scripts/build-desktop.mjs",
     "build:win": "node ./scripts/build-desktop.mjs --win",
     "build:mac": "node ./scripts/build-desktop.mjs --mac",
