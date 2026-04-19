@@ -68,7 +68,7 @@ export function ShotBreakdown({
           <div key={group.scene.id} className="flex-shrink-0">
             {/* Scene marker */}
             <div className="h-10 flex items-center justify-center text-[10px] text-zinc-600 font-mono border-b border-zinc-800">
-              S{scriptData?.scenes.indexOf(group.scene)! + 1}
+              S{scriptData.scenes.indexOf(group.scene) + 1}
             </div>
             {/* Shot indices */}
             {group.shots.map((shot, idx) => {

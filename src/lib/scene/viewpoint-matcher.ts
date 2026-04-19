@@ -261,7 +261,7 @@ function extractKeywords(name: string): string[] {
   }
   
   // 2. 按空格/斜杠/破折号分割
-  const parts = name.split(/[\s\/\-\—\|]+/);
+  const parts = name.split(/[\s/\-—|]+/);
   for (const part of parts) {
     if (part.length >= 2) {
       keywords.push(part);

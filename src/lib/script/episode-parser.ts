@@ -59,7 +59,7 @@ export function parseFullScript(fullText: string): {
   // 2. 提取大纲（从"大纲："到"人物小传："之间的内容）
   // 支持 Markdown 格式：**大纲：** 或 大纲： 或 【大纲】
   // 末尾 |$ 兜底：无人物小传/无集标记时匹配到文本末尾
-  const outlineMatch = fullText.match(/(?:\*{0,2}大纲[：:]​?\*{0,2}|【大纲】)([\s\S]*?)(?=(?:\*{0,2}人物小传[：:]|【人物|第[一二三四五六七八九十\d]+集|$))/i);
+  const outlineMatch = fullText.match(/(?:\*{0,2}大纲[：:]?\*{0,2}|【大纲】)([\s\S]*?)(?=(?:\*{0,2}人物小传[：:]|【人物|第[一二三四五六七八九十\d]+集|$))/i);
   const outline = outlineMatch ? outlineMatch[1].trim() : '';
   
   // 3. 提取人物小传（从"人物小传："到第一集之前的内容）
@@ -307,7 +307,7 @@ export function parseEpisodes(text: string): EpisodeRawScript[] {
   
   // 匹配集标记：第X集 或 第X集：标题
   // 支持 **第X集** 或 **第X集：标题** 格式
-  const episodeRegex = /\*{0,2}第([\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341\u767e\u5343\d]+)集[\uff1a:]?\s*([^\n\*]*?)\*{0,2}(?=\n|$)/g;
+  const episodeRegex = /\*{0,2}第([\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341\u767e\u5343\d]+)集[\uff1a:]?\s*([^\n*]*?)\*{0,2}(?=\n|$)/g;
   const matches = [...text.matchAll(episodeRegex)];
   
   if (matches.length === 0) {
@@ -366,13 +366,13 @@ export function parseScenes(episodeText: string): SceneRawContent[] {
   // **1-1日 内 沪上 张家** 或
   // 1-1 日 内 沪上 张家 或
   // **2-3 夜 外 码头**
-  const sceneHeaderRegex = /\*{0,2}(\d+-\d+)\s*(日|夜|晨|暮|黄昏|黎明|清晨|傍晚)\s*(内|外|内\/外)\s+([^\*\n]+)\*{0,2}/g;
+  const sceneHeaderRegex = /\*{0,2}(\d+-\d+)\s*(日|夜|晨|暮|黄昏|黎明|清晨|傍晚)\s*(内|外|内\/外)\s+([^*\n]+)\*{0,2}/g;
   const sceneMatches = [...episodeText.matchAll(sceneHeaderRegex)];
   
   if (sceneMatches.length === 0) {
     // 没有找到标准场景头，尝试宽松的 数字-数字 格式
     // 匹配如：1-1 规则怪谈世界，集合广场，日  或  1-2 全球同一会议直播间，日
-    const looseSceneRegex = /^\*{0,2}(\d+-\d+)\s+([^\*\n]+)\*{0,2}$/gm;
+    const looseSceneRegex = /^\*{0,2}(\d+-\d+)\s+([^*\n]+)\*{0,2}$/gm;
     const looseMatches = [...episodeText.matchAll(looseSceneRegex)];
     
     if (looseMatches.length > 0) {
@@ -502,7 +502,7 @@ function parseAlternativeSceneFormat(text: string): SceneRawContent[] {
   // 格式2: [场景描述]
   // 格式3: 直接按段落分
   
-  const altRegex = /(?:场景\s*(\d+)|【场景[：:]?\s*([^\】]+)】)/g;
+  const altRegex = /(?:场景\s*(\d+)|【场景[：:]?\s*([^】]+)】)/g;
   const matches = [...text.matchAll(altRegex)];
   
   if (matches.length > 0) {
@@ -596,7 +596,7 @@ function parseCharacters(text: string): string[] {
   }
   
   // 2. 从对白中提取说话人
-  const dialogueRegex = /^([^：:（\(【\n]{1,10})[：:](?:\s*[（\(][^）\)]+[）\)])?/gm;
+  const dialogueRegex = /^([^：:(【\n]{1,10})[：:](?:\s*[（(][^）)]+[）)])?/gm;
   const dialogueMatches = [...text.matchAll(dialogueRegex)];
   dialogueMatches.forEach(m => {
     const name = m[1].trim();
@@ -617,7 +617,7 @@ function parseDialogues(text: string): DialogueLine[] {
   
   // 对白格式：角色名：（动作）台词
   // 或：角色名：台词
-  const dialogueRegex = /^([^：:（\(【\n△]{1,10})[：:]\s*(?:[（\(]([^）\)]+)[）\)])?\s*(.+)$/gm;
+  const dialogueRegex = /^([^：:(【\n△]{1,10})[：:]\s*(?:[（(]([^）)]+)[）)])?\s*(.+)$/gm;
   
   const matches = [...text.matchAll(dialogueRegex)];
   
@@ -794,7 +794,7 @@ function stripSectionKeywords(name: string): string {
 function parseStandardBioFormat(bios: string): ScriptCharacter[] {
   const characters: ScriptCharacter[] = [];
   
-  const charRegex = /([^：:\n，,]+?)(?:[（\(](\d+岁?)[）\)])?[：:]\s*([^\n]+(?:\n(?![^：:\n]+[：:])[^\n]+)*)/g;
+  const charRegex = /([^：:\n，,]+?)(?:[（(](\d+岁?)[）)])?[：:]\s*([^\n]+(?:\n(?![^：:\n]+[：:])[^\n]+)*)/g;
   const matches = [...bios.matchAll(charRegex)];
   
   let index = 1;
@@ -829,7 +829,7 @@ function extractPersonality(description: string): string {
   // 查找性格相关关键词
   const personalityKeywords = ['性格', '为人', '品性', '脾气'];
   for (const keyword of personalityKeywords) {
-    const match = description.match(new RegExp(`${keyword}[^，。,\.]+`));
+    const match = description.match(new RegExp(`${keyword}[^，。,.]+`));
     if (match) return match[0];
   }
   return '';
@@ -862,9 +862,9 @@ function cleanCharacterName(rawName: string): string {
   // 去除 markdown 加粗标记
   name = name.replace(/\*+/g, '');
   // 去除括号及其内容，如 "王艳（周妻）" -> "王艳"
-  name = name.replace(/[（\(][^）\)]*[）\)]?/g, '');
+  name = name.replace(/[（(][^）)]*[）)]?/g, '');
   // 去除单独的右括号（截断情况）
-  name = name.replace(/[）\)]/g, '');
+  name = name.replace(/[）)]/g, '');
   // 去除引号
   name = name.replace(/["“”‘’"']/g, '');
   // 去除 VO/os 后缀
@@ -896,7 +896,7 @@ function isValidCharacterName(name: string): boolean {
   // 跳过纯数字
   if (/^\d+$/.test(name)) return false;
   // 跳过包含特殊符号的
-  if (/[\*\-\+\=\>\<\|\[\]\{\}]/.test(name)) return false;
+  if (/[*\-+=><|[\]{}]/.test(name)) return false;
   // 跳过明显的非角色词（只过滤最明显的，其他交给AI）
   const obviousNonCharacters = [
     'VO', '旁白', 'os', '左边', '右边', '中间', '背影', '远处',

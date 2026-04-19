@@ -572,7 +572,6 @@ ${gridItemsZh}
       sceneDescExtracted: currentPage ? (currentPage.promptZh?.includes('建筑风格') || currentPage.promptZh?.includes('光影设计')) : false,
       selectedSceneId: selectedScene?.id,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contactSheetAspectRatio]); // 只监听宽高比变化
 
   const handleCreateScene = () => {
@@ -1006,7 +1005,7 @@ ${gridItemsZh}
       day: '2-digit', 
       hour: '2-digit', 
       minute: '2-digit' 
-    }).replace(/[\/:]/g, '-');
+    }).replace(/[/:]/g, '-');
     const autoSceneName = `联合图场景-${timestamp}`;
     setName(autoSceneName);
     setLocation(autoSceneName);

@@ -373,7 +373,7 @@ async function pollTaskCompletion(
     }
     
     switch (statusData.status) {
-      case 'completed':
+      case 'completed': {
         const url = statusData.result?.url || 
                     statusData.result?.imageUrl || 
                     statusData.result?.videoUrl;
@@ -383,8 +383,8 @@ async function pollTaskCompletion(
           throw new Error('Task completed but no URL in result');
         }
         return resultUrl;
-        
-      case 'failed':
+      }
+      case 'failed': {
         // Handle error that might be an object
         let errorMsg = 'Task failed';
         if (statusData.error) {
@@ -393,7 +393,7 @@ async function pollTaskCompletion(
             : JSON.stringify(statusData.error);
         }
         throw new Error(errorMsg);
-        
+      }
       case 'pending':
       case 'processing':
         // Continue polling

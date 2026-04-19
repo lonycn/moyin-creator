@@ -53,9 +53,8 @@ export function DraggableMediaItem({
   const [isDragging, setIsDragging] = useState(false);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
   const dragRef = useRef<HTMLDivElement>(null);
-  const currentTime = isDraggable
-    ? usePlaybackStore((state) => state.currentTime)
-    : 0;
+  const playbackCurrentTime = usePlaybackStore((state) => state.currentTime);
+  const currentTime = isDraggable ? playbackCurrentTime : 0;
   const highlightClassName = "ring-2 ring-primary rounded-sm bg-primary/10";
 
   const handleAddToTimeline = () => {

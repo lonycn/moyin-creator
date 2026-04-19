@@ -241,7 +241,9 @@ export function createSplitStorage<T = any>(
               const sharedParsed = JSON.parse(sharedRaw);
               sharedPayload = sharedParsed?.state ?? sharedParsed;
             }
-          } catch {}
+          } catch {
+            // Ignore malformed shared payloads and continue loading project data.
+          }
 
           // Merge: shared → other projects → current project (last gets priority for currentFolderId etc.)
           let merged: T = mergeFn(null, sharedPayload);

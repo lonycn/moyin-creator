@@ -756,10 +756,10 @@ function generateShotsFromSceneContent(
     if (!trimmedLine) continue;
     if (trimmedLine.startsWith('人物') || trimmedLine.startsWith('**人物')) continue;
     // 跳过纯 markdown 格式行（如 **xxx**）
-    if (trimmedLine.match(/^\*\*[^人物\*]+\*\*$/)) continue;
+    if (trimmedLine.match(/^\*\*[^人物*]+\*\*$/)) continue;
     
     // 对白行
-    const dialogueMatch = trimmedLine.match(/^([^：:（\([【\n△\*]{1,10})[：:]\s*(?:[（\(]([^）\)]+)[）\)])?\s*(.+)$/);
+    const dialogueMatch = trimmedLine.match(/^([^：:([【\n△*]{1,10})[：:]\s*(?:[（(]([^）)]+)[）)])?\s*(.+)$/);
     if (dialogueMatch) {
       const charName = dialogueMatch[1].trim();
       const parenthetical = dialogueMatch[2]?.trim() || '';

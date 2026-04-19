@@ -25,6 +25,8 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { usePreviewStore } from "@/stores/preview-store";
+import { useMediaStore } from "@/stores/media-store";
+import type { MediaFile } from "@/types/media";
 
 interface DragState {
   isDragging: boolean;
@@ -111,9 +113,10 @@ export function SimpleTimeline() {
           } else if (data.type === "video" && data.id) {
             // Fallback: try to get from media store if URL not provided
             try {
-              const { useMediaStore } = require("@/stores/media-store");
               const mediaStore = useMediaStore.getState();
-              const mediaFile = mediaStore.mediaFiles.find((m: any) => m.id === data.id);
+              const mediaFile = mediaStore.mediaFiles.find(
+                (m: MediaFile) => m.id === data.id,
+              );
               
               if (mediaFile) {
                 addClip({

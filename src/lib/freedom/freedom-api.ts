@@ -417,7 +417,12 @@ async function generateViaChatCompletions(
   if (!response.ok) {
     const errorText = await response.text();
     let msg = `图片生成 API 错误: ${response.status}`;
-    try { const j = JSON.parse(errorText); msg = j.error?.message || msg; } catch {}
+    try {
+      const j = JSON.parse(errorText);
+      msg = j.error?.message || msg;
+    } catch {
+      // Keep the fallback message when the body is not JSON.
+    }
     throw toHttpError(msg, response.status, errorText);
   }
 

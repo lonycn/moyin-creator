@@ -49,7 +49,8 @@ export class TaskPoller {
 
     console.log(`[TaskPoller] Starting poll for ${type} task: ${taskId}`);
 
-    while (true) {
+    let shouldContinue = true;
+    while (shouldContinue) {
       pollCount++;
 
       // Check cancellation
@@ -85,6 +86,7 @@ export class TaskPoller {
 
         // Check completion
         if (result.status === 'completed') {
+          shouldContinue = false;
           console.log(`[TaskPoller] Task ${taskId} completed after ${pollCount} polls`);
           return result;
         }

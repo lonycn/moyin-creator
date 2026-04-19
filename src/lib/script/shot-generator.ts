@@ -193,7 +193,9 @@ export async function generateShotImage(
       try {
         const errorJson = JSON.parse(errorText);
         errorMessage = errorJson.error?.message || errorJson.message || errorMessage;
-      } catch {}
+      } catch {
+        // Fall through to the existing fallback message.
+      }
       
       // Create error with status code for retry logic
       const error = new Error(errorMessage) as Error & { status?: number };
@@ -301,7 +303,9 @@ export async function generateShotVideo(
       try {
         const errorJson = JSON.parse(errorText);
         errorMessage = errorJson.error?.message || errorJson.message || errorMessage;
-      } catch {}
+      } catch {
+        // Fall through to the existing fallback message.
+      }
       
       const error = new Error(errorMessage) as Error & { status?: number };
       error.status = response.status;

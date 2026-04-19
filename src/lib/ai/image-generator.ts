@@ -391,7 +391,12 @@ async function submitViaChatCompletions(
         }
 
         let msg = `图片生成 API 错误: ${resp.status}`;
-        try { const j = JSON.parse(errorText); msg = j.error?.message || msg; } catch {}
+        try {
+          const j = JSON.parse(errorText);
+          msg = j.error?.message || msg;
+        } catch {
+          // Keep the fallback message when the body is not JSON.
+        }
 
         // 401 专项提示：引导用户检查 API Key
         if (resp.status === 401) {

@@ -942,7 +942,7 @@ export async function generateScriptFromIdea(
   
   // 统计原始输入中的镜头/场景数量
   // 支持多种格式：【镜头1】、**【镜头1：...】**、镜头1、场景1 等
-  const shotMatches = idea.match(/\*?\*?[\[\u3010]\s*镜头\s*\d+/g) || [];
+  const shotMatches = idea.match(/\*?\*?[[\u3010]\s*镜头\s*\d+/g) || [];
   const sceneMatches = idea.match(/场景\s*\d+/g) || [];
   const originalShotCount = Math.max(shotMatches.length, sceneMatches.length);
   
@@ -1012,7 +1012,7 @@ function detectInputType(input: string): string {
   const lineCount = trimmed.split('\n').filter(l => l.trim()).length;
   
   // 检测已有分镜结构：【镜头X】或 **【镜头X】**
-  if (/[【\[]\s*镜头\s*\d+/i.test(trimmed) || /\*\*.*镜头.*\*\*/i.test(trimmed)) {
+  if (/[【[]\s*镜头\s*\d+/i.test(trimmed) || /\*\*.*镜头.*\*\*/i.test(trimmed)) {
     return '详细分镜脚本';
   }
   

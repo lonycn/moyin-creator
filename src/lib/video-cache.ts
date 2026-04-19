@@ -35,7 +35,9 @@ export class VideoCache {
     if (!sample) return;
     try {
       sample.close();
-    } catch {}
+    } catch {
+      // Ignore duplicate close attempts from partially-consumed samples.
+    }
   }
 
   private closeFrame(frame: CachedFrame | null): void {
@@ -123,10 +125,14 @@ export class VideoCache {
     if (!sinkData.iterator) return null;
 
     try {
-      while (true) {
+      let hasMoreSamples = true;
+      while (hasMoreSamples) {
         const { value: sample, done } = await sinkData.iterator.next();
 
-        if (done || !sample) break;
+        if (done || !sample) {
+          hasMoreSamples = false;
+          continue;
+        }
         
         // 渲染 sample 到 canvas 并创建 CachedFrame
         const frame = this.renderSampleToCanvas(sample, sinkData);

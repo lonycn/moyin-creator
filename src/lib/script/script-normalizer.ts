@@ -90,7 +90,7 @@ export function preprocessLineBreaks(text: string): { text: string; inserted: bo
   // 7. 角色传记条目前换行：句号/感叹号/分号等标点后紧跟 角色名：年龄/年两：
   // 处理紧凑格式人物小传（所有角色挤在同一行）
   result = result.replace(
-    /([。！；;）\)」】])\s*(?=[\u4e00-\u9fa5]{2,8}[：:]\s*(?:年龄|年两)[：:])/g,
+    /([。！；;）」】])\s*(?=[\u4e00-\u9fa5]{2,8}[：:]\s*(?:年龄|年两)[：:])/g,
     '$1\n'
   );
   
@@ -457,7 +457,7 @@ function normalizeTitle(text: string, changes: string[]): string {
     if (/[：:].{15,}/.test(trimmed)) continue;
     
     // 跳过括号标记行
-    if (/^[【\[]/.test(trimmed)) continue;
+    if (/^[【[]/.test(trimmed)) continue;
     
     // 找到标题候选
     // 使用精确位置替换，避免替换到后续相同文本
@@ -582,7 +582,7 @@ function normalizeEpisodeMarkers(text: string, changes: string[]): string {
   
   // Episode X / EP.X / EP X → 第X集（英文格式）
   normalized = normalized.replace(
-    /^(?:Episode|EP\.?)\s*(\d+)\s*[：:.\-]?\s*([^\n]*)?$/gim,
+    /^(?:Episode|EP\.?)\s*(\d+)\s*[：:.-]?\s*([^\n]*)?$/gim,
     (_match, num, title) => {
       changed = true;
       return `第${num}集${title ? '：' + title.trim() : ''}`;
